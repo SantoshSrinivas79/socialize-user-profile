@@ -1,17 +1,19 @@
+/* eslint-disable import/no-unresolved */
+import { Meteor } from 'meteor/meteor';
+import { BaseModel } from 'meteor/socialize:base-model';
 import { Mongo } from 'meteor/mongo';
-import { LinkableModel, LinkParent } from 'meteor/socialize:linkable-model'
+import SimpleSchema from 'simpl-schema';
 
-export const ProfilesCollection = new Mongo.Collection('profiles');
+/* eslint-enable import/no-unresolved */
 
-/**
- * Represents a Profile
- * @class Profile
- * @param {Object} document An object representing a users profile usually a Mongo document
- */
-export class Profile extends LinkParent{
-    constructor(document){
-        super(document);
-    }
+export const ProfilesCollection = new Mongo.Collection('ProfilesCollection');
+
+export class Profile extends BaseModel {
+    /**
+     * Get the User instance for the profile
+     * @function user
+     * @memberof Profile
+     */
     user() {
         return Meteor.users.findOne(this.userId);
     }
@@ -19,40 +21,43 @@ export class Profile extends LinkParent{
 
 Profile.attachCollection(ProfilesCollection);
 
-//attach or append
-Profile.appendSchema({
-    "userId":{
-        type:String,
-        regEx:SimpleSchema.RegEx.Id,
-        autoValue:function () {
-            if(!this.value && this.isInsert){
-                return this.userId;
+// Create the schema for a profile
+ProfilesCollection.attachSchema(new SimpleSchema({
+    userId: {
+        type: String,
+        regEx: SimpleSchema.RegEx.Id,
+        autoValue() {
+            if (this.isInsert) {
+                if (!this.isSet && this.isFromTrustedCode) {
+                    return this.userId;
+                }
             }
+            return undefined;
         },
-        index:1,
         unique:true,
-        denyUpdate:true
+        // denyUpdate: true,
     },
-    "username":{
-        type:String,
-        index:1,
-        unique:true,
-        optional:true,
-        denyUpdate:true
+    username: {
+        type: String,
+        optional: true
     },
-    "createdAt":{
-        type:Date,
-        autoValue:function() {
-            if(this.isInsert){
+    firstName: {
+        type: String,
+        optional: true
+    },
+    lastName: {
+        type: String,
+        optional: true
+    },
+    date: {
+        type: Date,
+        optional: true,
+        autoValue() {
+            if (this.isInsert) {
                 return new Date();
             }
+            return undefined;
         },
-        denyUpdate:true
+        denyUpdate: true,
     },
-    "lastUpdate":{
-        type:Date,
-        autoValue:function() {
-            return new Date();
-        }
-    }
-});
+}));

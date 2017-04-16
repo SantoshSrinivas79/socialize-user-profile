@@ -22,12 +22,36 @@ Meteor.users.after.insert(function(userId, document) {
     ProfilesCollection.insert(profile);
 });
 
-Meteor.users.after.delete(function(userId, document) {
+Meteor.users.after.remove(function(userId, document) {
    ProfilesCollection.remove({userId: userId})
-}
+});
 
-Meteor.users.deny({
-    update: function() {
-        return true;
+
+// Added this to update user profile collection per the profile field
+Meteor.users.after.update(function(userId, document) {
+    // console.log("In the update trigger of profiles");
+    // console.log(document);
+
+    var profile = {
+        userId:document._id
+    };
+
+    if(document.username){
+        profile.username = document.username;
+        profile.firstName = document.profile.firstName;
+        profile.lastName = document.profile.lastName;
     }
+
+    ProfilesCollection.upsert({userId: document._id}, 
+        {
+            $set:
+                {
+                    userId:document._id, 
+                    username:document.username,
+                    firstName : document.profile.firstName,
+                    lastName : document.profile.lastName
+                }
+
+        }
+    );
 });
