@@ -3,10 +3,13 @@ import { Meteor } from 'meteor/meteor';
 import { BaseModel } from 'meteor/socialize:base-model';
 import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
+SimpleSchema.extendOptions(['autoform']);
+import { Tracker } from 'meteor/tracker';
+SimpleSchema.debug = true;
 
 /* eslint-enable import/no-unresolved */
 
-export const ProfilesCollection = new Mongo.Collection('ProfilesCollection');
+export const Profiles = new Mongo.Collection('profiles');
 
 export class Profile extends BaseModel {
     /**
@@ -19,10 +22,10 @@ export class Profile extends BaseModel {
     }
 }
 
-Profile.attachCollection(ProfilesCollection);
+Profile.attachCollection(Profiles);
 
 // Create the schema for a profile
-ProfilesCollection.attachSchema(new SimpleSchema({
+Profiles.attachSchema(new SimpleSchema({
     userId: {
         type: String,
         regEx: SimpleSchema.RegEx.Id,
@@ -35,7 +38,7 @@ ProfilesCollection.attachSchema(new SimpleSchema({
             return undefined;
         },
         unique:true,
-        // denyUpdate: true,
+        denyUpdate: true,
     },
     username: {
         type: String,
@@ -60,4 +63,4 @@ ProfilesCollection.attachSchema(new SimpleSchema({
         },
         denyUpdate: true,
     },
-}));
+}, { tracker: Tracker }));
