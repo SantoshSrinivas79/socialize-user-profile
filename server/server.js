@@ -18,6 +18,11 @@ Meteor.users.after.insert(function(userId, document) {
 
     if(document.username){
         profile.username = document.username;
+
+        // For startup creation. Dummy data. To be removed!
+        var chance = new Chance();
+        profile.dob = chance.birthday();
+        profile.state = chance.state();
     }
 
     Profiles.insert(profile);
