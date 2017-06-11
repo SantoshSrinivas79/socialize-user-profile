@@ -52,6 +52,14 @@ Profiles.attachSchema(new SimpleSchema({
         type: String,
         optional: true
     },
+    dob: {
+        type: Date,
+        optional: true,
+    },
+    state: {
+        type: String,
+        optional: true
+    },
     date: {
         type: Date,
         optional: true,
